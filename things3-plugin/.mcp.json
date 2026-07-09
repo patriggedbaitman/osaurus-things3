@@ -1,6 +1,6 @@
 {
   "things3": {
     "command": "python3",
-    "args": ["${CLAUDE_PLUGIN_ROOT}/server/things_server.py"],
+    "args": ["${CLAUDE_PLUGIN_ROOT}/server/things_server.py"]
   }
 }
