@@ -1,6 +1,11 @@
 {
-  "things3": {
-    "command": "/opt/homebrew/bin/python3",
-    "args": ["${CLAUDE_PLUGIN_ROOT}/server/things_server.py"]
+  "mcpServers": {
+    "things3": {
+      "command": "/opt/homebrew/bin/python3",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/things_server.py"],
+      "env": {
+        "THINGS_AUTH_TOKEN": "${THINGS_AUTH_TOKEN}"
+      }
+    }
   }
 }

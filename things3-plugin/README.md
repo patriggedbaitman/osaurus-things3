@@ -15,12 +15,9 @@ Raycast-Things-Plugin:
 ### Voraussetzungen
 - macOS mit Things 3 (mind. einmal gestartet, damit die DB existiert)
 - Python 3 mit dem `mcp`-Paket:
-  ```bash
-  pip3 install --break-system-packages -r server/requirements.txt
+  ```/opt/homebrew/bin/python3 -m pip install --user --break-system-packages -r server/requirements.txt
   ```
-- macOS-Berechtigung: Things muss unter Systemeinstellungen → Datenschutz &
-  Sicherheit → Automation ggf. für das aufrufende Programm freigegeben sein
-  (für den `open things:///...` Aufruf).
+Installiert mcp in den Homebrew-Python, den .mcp.json als command nutzt.
 
 ### In Osaurus importieren
 Osaurus kann komplette Claude-Plugins direkt aus einem GitHub-Repo oder

@@ -75,8 +75,8 @@ def find_database_path() -> Path:
 @contextmanager
 def db_connection():
     db_path = find_database_path()
-    # immutable=1 + Nur-Lese-URI: verhindert Schreibkonflikte mit der laufenden Things-App
-    uri = f"file:{urllib.parse.quote(str(db_path))}?immutable=1"
+    # fix: immutable=1 gegen mode=ro getauscht. Grund: immutable=1 geht davon aus, dass sich die Datei nie ändert – tut sie aber, solange Things läuft. Kann zu veralteten/falschen Ergebnissen führen. mode=ro ist der korrekte, nebenläufig sichere Read-Only-Modus.
+    uri = f"file:{urllib.parse.quote(str(db_path))}?mode=ro"
     conn = sqlite3.connect(uri, uri=True)
     conn.row_factory = sqlite3.Row
     try:
@@ -108,9 +108,9 @@ TASK_BASE_SELECT = """
         t.notes,
         t.status,
         t.start,
-        date(t.startDate, 'unixepoch') AS start_date,
-        date(t.deadline, 'unixepoch') AS deadline,
-        date(t.stopDate, 'unixepoch') AS completion_date,
+        date(t.startDate, 'unixepoch', 'localtime') AS start_date,
+        date(t.deadline, 'unixepoch', 'localtime') AS deadline,
+        date(t.stopDate, 'unixepoch', 'localtime') AS completion_date,
         p.title AS project_title,
         a.title AS area_title,
         t.creationDate AS created,
@@ -215,7 +215,7 @@ def things_search(query: str) -> list[dict]:
 @mcp.tool()
 def things_get_todo(uuid: str) -> dict:
     """Liefert Detailinformationen zu einem Todo inkl. Tags und Checklist-Items."""
-    rows = run_query(TASK_BASE_SELECT.replace("WHERE t.trashed = 0 AND t.type = 0", "WHERE t.uuid = ?"), (uuid,))
+    rows = run_query(TASK_BASE_SELECT.replace("WHERE t.trashed = 0 AND t.type = 0", "WHERE t.trashed = 0 AND t.uuid = ?"), (uuid,))
     if not rows:
         raise ValueError(f"Kein Todo mit uuid={uuid} gefunden.")
     todo = rows[0]
@@ -267,7 +267,7 @@ def things_add_todo(
     if checklist_items:
         params["checklist-items"] = "\n".join(checklist_items)
     _open_things_url("add", params)
-    return f"Todo '{title}' wurde in Things angelegt."
+    return f"Anfrage zum Anlegen von '{title}' wurde an Things gesendet."
 
 
 @mcp.tool()
@@ -291,7 +291,7 @@ def things_add_project(
     if todos:
         params["to-dos"] = "\n".join(todos)
     _open_things_url("add-project", params)
-    return f"Projekt '{title}' wurde in Things angelegt."
+    return f"Anfrage zum Anlegen von '{title}' wurde an Things gesendet."
 
 
 def _require_token() -> str:
@@ -326,7 +326,7 @@ def things_update_todo(
     if add_tags:
         params["add-tags"] = ",".join(add_tags)
     _open_things_url("update", params)
-    return f"Todo {uuid} wurde aktualisiert."
+    return f"Anfrage zur Aktualisierung von {uuid} wurde an Things gesendet."
 
 
 @mcp.tool()
@@ -334,7 +334,7 @@ def things_complete_todo(uuid: str) -> str:
     """Markiert ein Todo als erledigt. Benötigt THINGS_AUTH_TOKEN."""
     token = _require_token()
     _open_things_url("update", {"id": uuid, "completed": "true", "auth-token": token})
-    return f"Todo {uuid} wurde als erledigt markiert."
+    return f"Anfrage, {uuid} als erledigt zu markieren, wurde an Things gesendet."
 
 
 if __name__ == "__main__":
