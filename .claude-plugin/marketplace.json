@@ -1,0 +1,11 @@
+{
+  "name": "sean-plugins",
+  "owner": { "name": "Sean" },
+  "plugins": [
+    {
+      "name": "things3",
+      "source": "./things3-plugin",
+      "description": "Things 3 Aufgabenverwaltung: Inbox/Today/Upcoming/Projekte lesen und Todos/Projekte anlegen bzw. aktualisieren."
+    }
+  ]
+}
